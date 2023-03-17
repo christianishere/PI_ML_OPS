@@ -20,7 +20,6 @@ httpcore==0.16.3
 httptools==0.5.0
 httpx==0.23.3
 idna==3.4
-ipykernel==6.17.0
 ipython==8.6.0
 itsdangerous==2.1.2
 jedi==0.18.1
