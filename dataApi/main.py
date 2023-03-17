@@ -60,38 +60,38 @@ def get_max_duration(year: Optional[int] = None, platform: Optional[str] = None,
     
     return result
 
-@app.get("/max_duration2")
-async def get_max_duration(year: Optional[int] = None, platform: Optional[str] = None, duration_type: Optional[str] = 'min'):
+#@app.get("/max_duration2")
+#async def get_max_duration(year: Optional[int] = None, platform: Optional[str] = None, duration_type: Optional[str] = 'min'):
 
-    if duration_type is not None and duration_type not in ['min', 'season']:
-        return("La duración debe ser una de las siguientes: min, season")
+#    if duration_type is not None and duration_type not in ['min', 'season']:
+#        return("La duración debe ser una de las siguientes: min, season")
     
     # Filtramos por solo peliculas (NOTA: Según una consulta de sli.do este paso no debe de ser realizado)
     # df_movies = df[df.type == 'movie']
 
-    df_movies = df
+#    df_movies = df
 
     # Aplicar los filtros OPCIONALES
-    if year:
-         df_movies = df_movies[df_movies.release_year == year]
+#    if year:
+#         df_movies = df_movies[df_movies.release_year == year]
 
-    if platform:
+#    if platform:
         # Pasamos platform a minusculas por si un usuario lo escribe en mayusculas
-        platform = platform.lower()
+#        platform = platform.lower()
         # Controlamos que la plataforma ingresada sea correcta
-        platforms = ["amazon", "disney", "hulu", "netflix"]
-        if platform not in platforms:
-            return ("Plataforma incorrecta! Debe ingresar una de las siguientes: amazon, disney, hulu, netflix")
-        df_movies = df_movies[df_movies.platform == platform]
+#        platforms = ["amazon", "disney", "hulu", "netflix"]
+#        if platform not in platforms:
+#            return ("Plataforma incorrecta! Debe ingresar una de las siguientes: amazon, disney, hulu, netflix")
+#        df_movies = df_movies[df_movies.platform == platform]
 
-    if duration_type:
+#    if duration_type:
         # Controlamos que el duration_type sea valido
-        duration_type = duration_type.lower()
-        df_movies = df_movies[df_movies.duration_type == duration_type]
+#        duration_type = duration_type.lower()
+#        df_movies = df_movies[df_movies.duration_type == duration_type]
 
-    if not df_movies.empty:
-        max_duration_movie = df_movies.sort_values('duration_int', ascending=False).iloc[0]['title']
-    else:
-        return("No se encontró ninguna pelicula con los parametros dados.")    
+#    if not df_movies.empty:
+#        max_duration_movie = df_movies.sort_values('duration_int', ascending=False).iloc[0]['title']
+#    else:
+#        return("No se encontró ninguna pelicula con los parametros dados.")    
 
-    return {"Película de mayor duración": max_duration_movie}
+#    return {"Película de mayor duración": max_duration_movie}
