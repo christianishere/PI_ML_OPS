@@ -28,7 +28,7 @@ jupyter_client==7.4.4
 jupyter_core==4.11.2
 kiwisolver==1.4.4
 MarkupSafe==2.1.2
-matplotlib==3.6.2
+matplotlib
 matplotlib-inline==0.1.6
 mysql-connector-python==8.0.31
 nest-asyncio==1.5.6
