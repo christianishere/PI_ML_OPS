@@ -76,10 +76,18 @@ Archivo principal: **[eda_principal](eda_principal.ipynb)**
 ### **4. Etapa del Sistema de Recomendación** :arrow_right:
 Archivo principal: **[m_recomendacion.ipynb](m_recomendacion.ipynb)**
 - Para lograr el MVP de esta etapa, se utilizó la librería **Surprise**, basados en el algoritmo **SVD**
+- Luego se utilizó la biblioteca **Gradio** para obtener una interfase gráfica del Sistema de Recomendación. A continuación podrá verse:
 
+Imagen de la Interfase dentro de VS Code
+    
+![Interfase_Gradio_VSC](src/ModelRec1.jpg)
+    
+Imagen de la Interfase funcionando a nivel local en el navegador Chrome:
+![Interfase_Gradio_Chrome](src/ModelRec2.jpg)
 
+Link de URL pública (expira el 23-03-2022)
 
-
+**[Gradio_Sistema de Recomendación](https://4ea5ee6e9e9d42f2ed.gradio.live)**
 
 
 ## **FUENTE DE DATOS** :white_circle:
