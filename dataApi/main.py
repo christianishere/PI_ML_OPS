@@ -1,97 +1,149 @@
 # Importante librerías necesarias
 from fastapi import FastAPI
 from typing import Optional
+from typing import List, Tuple
+
 import pandas as pd
-#from pydantic import BaseModel
 
 app = FastAPI()
 
 #http://127.0.0.1:8000
 
-#para hacer validación de datos con biblioteca BaseModel
-#class Libro(BaseModel):
-#        titulo: str
-#        autor: str
-#        paginas: int
-#        editorial: str
 
 
 @app.get("/")
 async def welcome():
-    return "Bienvenido !! Ud encontrará aquí sus películas y series favoritas y mucho más !!!"
+    return "Bienvenido !!! Aquí encontrarás tus películas y series favoritas y mucho más !!!"
 
 @app.get("/index")
 async def index():
-    return "Los cuatro métodos de búsqueda (funciones) son las funciones 1. get_max_duration, 2. get_score_count, 3. get_count_platform y 4. get_actor"
+    return "Los cuatro métodos de búsqueda (funciones) son: 1. get_max_duration, 2. get_score_count, 3. get_count_platform y 4. get_actor"
 
 
 
 df = pd.read_csv('datasets/full_titles.csv')
 
 
-
-
+# Creando la función 1: película con mayor duración con filtros opcionales de AÑO, PLATAFORMA Y TIPO DE DURACIÓN
+# (la función debe llamarse get_max_duration(year, platform, duration_type))
 
 @app.get("/max_duration")
 def get_max_duration(year: Optional[int] = None, platform: Optional[str] = None, duration_type: Optional[str] = 'min'):
     # Crear una copia del DataFrame original para evitar modificar los datos originales
     df_copy = df.copy()
     
-    # Aplicar los filtros opcionales si se especifican
-    if year is not None:
-        df_copy = df_copy[df_copy["release_year"] == year]
-    if platform is not None:
-        df_copy = df_copy[df_copy["platform"].str.contains(platform, case=False)]
-    if duration_type is not None:
-        df_copy = df_copy[df_copy["duration_type"] == duration_type]
+    try:
+
+        # Validando plataforma correcta
+        if platform is not None and platform.lower() not in ['amazon', 'disney', 'hulu', 'netflix']:
+            raise ValueError("La plataforma debe ser amazon, disney, hulu o netflix.")
+
+
+        # Aplicando los los filtros opcionales si se especifican
+        if year is not None:
+            df_copy = df_copy[df_copy["release_year"] == year]
+        if platform is not None:
+            df_copy = df_copy[df_copy["platform"].str.contains(platform, case=False)]
+        if duration_type is not None:
+            df_copy = df_copy[df_copy["duration_type"] == duration_type]
     
-    # Encontrar la película con la mayor duración
-    max_duration = df_copy["duration_int"].max()
-    max_duration_movie = df_copy[df_copy["duration_int"] == max_duration].iloc[0]
+        # Encontrando la película con la mayor duración
+        max_duration = df_copy["duration_int"].max()
+        max_duration_movie = df_copy[df_copy["duration_int"] == max_duration].iloc[0]
     
-    # Crear un diccionario con los datos de la película con mayor duración
-    result = {
-        "Título": max_duration_movie["title"],
-        "Plataforma": max_duration_movie["platform"],
-    #    "Director": max_duration_movie["director"],
-    #    "Año": max_duration_movie["release_year"],
-        "Duración": f"{max_duration_movie['duration_int']} {max_duration_movie['duration_type']}"
-    }
+        # Creando un diccionario con los datos de la película con mayor duración
+        result = {
+            "La película con mayor duración es:" : {
+            "Título": max_duration_movie["title"],
+            "Plataforma": max_duration_movie["platform"],
+    #       "Director": max_duration_movie["director"],
+    #        "Año": max_duration_movie["release_year"],
+            "Duración": f"{max_duration_movie['duration_int']} {max_duration_movie['duration_type']}"
+            }
+        }
     
-    return result
+        return result
 
-#@app.get("/max_duration2")
-#async def get_max_duration(year: Optional[int] = None, platform: Optional[str] = None, duration_type: Optional[str] = 'min'):
-
-#    if duration_type is not None and duration_type not in ['min', 'season']:
-#        return("La duración debe ser una de las siguientes: min, season")
+    except ValueError as e:
+        return {"error": str(e)}
     
-    # Filtramos por solo peliculas (NOTA: Según una consulta de sli.do este paso no debe de ser realizado)
-    # df_movies = df[df.type == 'movie']
 
-#    df_movies = df
+# Creando la función 2: cantidad de películas por plataforma con un puntaje mayor a XX en determinado año
+# la función debe llamarse get_score_count(platform, scored, year)
 
-    # Aplicar los filtros OPCIONALES
-#    if year:
-#         df_movies = df_movies[df_movies.release_year == year]
+@app.get("/score_count/{platform}/{scored}/{release_year}")
+def get_score_count(platform : str, scored : float, release_year: int):
 
-#    if platform:
-        # Pasamos platform a minusculas por si un usuario lo escribe en mayusculas
-#        platform = platform.lower()
-        # Controlamos que la plataforma ingresada sea correcta
-#        platforms = ["amazon", "disney", "hulu", "netflix"]
-#        if platform not in platforms:
-#            return ("Plataforma incorrecta! Debe ingresar una de las siguientes: amazon, disney, hulu, netflix")
-#        df_movies = df_movies[df_movies.platform == platform]
+    try:        
+        # Validando plataforma correcta
+        if platform is not None and platform.lower() not in ['amazon', 'disney', 'hulu', 'netflix']:
+            raise ValueError("La plataforma debe ser amazon, disney, hulu o netflix.")
+    
+        # Filtrar las películas para la plataforma, año y puntaje especificados
+        df_filtered = df[(df.platform == platform) & (df.score > scored) & (df.release_year == release_year) & (df.type == 'movie')]
 
-#    if duration_type:
-        # Controlamos que el duration_type sea valido
-#        duration_type = duration_type.lower()
-#        df_movies = df_movies[df_movies.duration_type == duration_type]
+        # Verificar que hay al menos una película que cumpla con los filtros
+        if not df_filtered.empty:
+            count = df_filtered.groupby('platform').size()
+            return count.to_dict()
+        else:
+            return("No se encontró nigún título con los parámetros ingresados.")
 
-#    if not df_movies.empty:
-#        max_duration_movie = df_movies.sort_values('duration_int', ascending=False).iloc[0]['title']
-#    else:
-#        return("No se encontró ninguna pelicula con los parametros dados.")    
+    except ValueError as e:
+        return {"error": str(e)}
 
-#    return {"Película de mayor duración": max_duration_movie}
+
+# Creando la función 3: cantidad de películas por plataforma con filtro de PLATAFORMA.
+# La función debe llamarse get_count_platform(platform)
+
+@app.get("/count_platform/{platform}")
+def get_count_platform(platform: str):
+
+    try:        
+        # Validando plataforma correcta
+        if platform is not None and platform.lower() not in ['amazon', 'disney', 'hulu', 'netflix']:
+            raise ValueError("La plataforma debe ser amazon, disney, hulu o netflix.")
+    
+        #Filtrar las películas para la plataforma
+        df_filtered = df[df['id'].str.contains(platform[0], case=False)]
+
+        #luego hago un conteo del tamaño del filtro que hice
+        count = len(df_filtered)
+
+        return count
+
+    except ValueError as e:
+        return {"error": str(e)}
+    
+
+# Creando la función 4: actor que más se repite según plataforma y año. (La función debe llamarse get_actor(platform, year))
+
+@app.get("/actor")
+def get_actor(platform: str, release_year: int) -> Tuple[int, List[str]]:
+
+    # Validando plataforma correcta
+    if platform is not None and platform.lower() not in ['amazon', 'disney', 'hulu', 'netflix']:
+        raise ValueError("La plataforma debe ser amazon, disney, hulu o netflix.")
+
+    # Filtrar el dataframe por plataforma y año
+    df_filtered = df[(df['platform'] == platform) & (df['release_year'] == release_year)]
+    
+    # Crear una lista con todos los actores en el dataframe filtrado, excluyendo "no data"
+    actors_list = [actor.strip() for cast in df_filtered['cast'] for actor in cast.split(',') if actor.strip() != "no data"]
+    
+    # Contar cuántas veces aparece cada actor en la lista
+    actor_counts = {}
+    for actor in actors_list:
+        if actor in actor_counts:
+            actor_counts[actor] += 1
+        else:
+            actor_counts[actor] = 1
+    
+    # Calcular la cantidad máxima de apariciones
+    max_appearances = max(actor_counts.values())
+    
+    # Filtrar los actores que aparecen la cantidad máxima de veces, excluyendo "no data"
+    most_common_actors = [actor for actor in actor_counts if actor_counts[actor] == max_appearances and actor != "no data"]
+    
+    # Devolver el resultado como una tupla con la cantidad máxima y la lista de actores
+    return max_appearances, most_common_actors
